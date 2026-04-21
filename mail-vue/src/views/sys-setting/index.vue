@@ -367,8 +367,8 @@
         :title="$t('addTurnstileSecret')"
         width="340"
         @closed="
-          turnstileForm.secretKey = ''
-          turnstileForm.siteKey = ''
+          turnstileForm.secretKey = '';
+          turnstileForm.siteKey = '';
         "
       >
         <form>
@@ -1280,9 +1280,11 @@ function editSetting(settingForm, refreshStatus = true) {
   grid-template-columns: repeat(auto-fill, minmax(420px, 1fr));
   padding: 20px;
   gap: 20px;
+
   @media (max-width: 500px) {
     grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
   }
+
   @media (max-width: 1023px) {
     gap: 15px;
     padding: 15px;
@@ -1294,6 +1296,7 @@ function editSetting(settingForm, refreshStatus = true) {
   height: 140px;
   border-radius: 4px;
   border: 1px solid var(--light-border);
+
   @media (max-width: 500px) {
     width: 160px;
     height: 90px;
@@ -1355,6 +1358,7 @@ function editSetting(settingForm, refreshStatus = true) {
 .r2domain-item {
   display: flex;
   gap: 10px;
+
   > div:first-child {
     display: flex;
     align-items: center;
@@ -1385,6 +1389,7 @@ function editSetting(settingForm, refreshStatus = true) {
   border: 1px solid #d4d7de;
   height: 397px;
   width: 705px;
+
   @media (max-width: 767px) {
     width: calc(100vw - 60px);
     height: calc((100vw - 60px) * 9 / 16);
@@ -1413,6 +1418,7 @@ function editSetting(settingForm, refreshStatus = true) {
   @media (max-width: 840px) {
     grid-template-columns: 1fr 1fr;
   }
+
   @media (max-width: 580px) {
     grid-template-columns: 1fr;
   }
@@ -1424,6 +1430,7 @@ function editSetting(settingForm, refreshStatus = true) {
 
 :deep(.el-dialog) {
   width: 400px !important;
+
   @media (max-width: 440px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
@@ -1434,6 +1441,7 @@ function editSetting(settingForm, refreshStatus = true) {
 :deep(.resend-table.el-dialog) {
   min-height: 300px;
   width: 500px !important;
+
   @media (max-width: 540px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
@@ -1444,6 +1452,7 @@ function editSetting(settingForm, refreshStatus = true) {
 :deep(.notice-popup.el-dialog) {
   min-height: 300px;
   width: 820px !important;
+
   @media (max-width: 860px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
@@ -1466,6 +1475,7 @@ function editSetting(settingForm, refreshStatus = true) {
 
 :deep(.forward-dialog.el-dialog) {
   width: 500px !important;
+
   @media (max-width: 540px) {
     width: calc(100% - 40px) !important;
     margin-right: 20px !important;
@@ -1547,6 +1557,7 @@ function editSetting(settingForm, refreshStatus = true) {
     display: flex;
     align-items: center;
     justify-content: space-between;
+
     .el-select {
       width: v-bind(tgMsgLabelWidth);
     }
@@ -1633,6 +1644,7 @@ function editSetting(settingForm, refreshStatus = true) {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+
   .force-path-style-left {
     padding-left: 2px;
     display: flex;
