@@ -29,8 +29,19 @@ const dbInit = {
 		await this.v2_8DB(c);
 		await this.v2_9DB(c);
 		await this.v2_10DB(c);
+		await this.v2_11DB(c);
 		await settingService.refresh(c);
 		return c.text('success');
+	},
+
+	async v2_11DB(c) {
+		try {
+			await c.env.db.prepare(`ALTER TABLE setting ADD COLUMN aliyun_access_key_id TEXT NOT NULL DEFAULT '';`).run();
+			await c.env.db.prepare(`ALTER TABLE setting ADD COLUMN aliyun_access_key_secret TEXT NOT NULL DEFAULT '';`).run();
+			await c.env.db.prepare(`ALTER TABLE setting ADD COLUMN aliyun_sms_status INTEGER NOT NULL DEFAULT 1;`).run();
+		} catch (e) {
+			console.warn(`跳过字段：${e.message}`);
+		}
 	},
 
 	async v2_10DB(c) {

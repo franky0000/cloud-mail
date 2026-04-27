@@ -1,20 +1,28 @@
 import BizError from '../error/biz-error';
 import { t } from '../i18n/i18n';
+import settingService from './setting-service';
 
 const SMSClient = require('@alicloud/sms-sdk');
 
 const smsService = {
 
   async sendSms(c, phone, subject) {
-    // 从环境变量获取阿里云短信服务配置
-    const accessKeyId = c.env.ALIYUN_ACCESS_KEY_ID;
-    const secretAccessKey = c.env.ALIYUN_ACCESS_KEY_SECRET;
+    // 从设置中获取阿里云短信服务配置
+    const setting = await settingService.get(c, true);
+    const accessKeyId = setting.aliyunAccessKeyId;
+    const secretAccessKey = setting.aliyunAccessKeySecret;
+    const smsStatus = setting.aliyunSmsStatus;
     const templateCode = 'SMS_501190260';
     const signName = '雪萌熊';
 
-    // 验证环境变量是否存在
+    // 验证配置是否存在
     if (!accessKeyId || !secretAccessKey) {
       throw new BizError('阿里云短信服务配置未设置', 500);
+    }
+
+    // 验证短信服务是否启用
+    if (smsStatus !== 0) {
+      throw new BizError('阿里云短信服务未启用', 500);
     }
 
     // 创建短信客户端

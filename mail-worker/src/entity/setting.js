@@ -46,6 +46,9 @@ export const setting = sqliteTable('setting', {
 	tgMsgTo: text('tg_msg_to').default('show').notNull(),
 	tgMsgText: text('tg_msg_text').default('hide').notNull(),
 	minEmailPrefix: integer('min_email_prefix').default(0).notNull(),
-	emailPrefixFilter: text('email_prefix_filter').default('').notNull()
+	emailPrefixFilter: text('email_prefix_filter').default('').notNull(),
+	aliyunAccessKeyId: text('aliyun_access_key_id').default('').notNull(),
+	aliyunAccessKeySecret: text('aliyun_access_key_secret').default('').notNull(),
+	aliyunSmsStatus: integer('aliyun_sms_status').default(1).notNull()
 });
 export default setting

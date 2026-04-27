@@ -233,6 +233,17 @@
               </div>
               <div class="setting-item">
                 <div>
+                  <span>阿里云短信服务</span>
+                </div>
+                <div class="forward">
+                  <span>{{ setting.aliyunSmsStatus === 0 ? $t('enabled') : $t('disabled') }}</span>
+                  <el-button class="opt-button" size="small" type="primary" @click="openAliyunSmsSetting">
+                    <Icon icon="fluent:settings-48-regular" width="18" height="18" />
+                  </el-button>
+                </div>
+              </div>
+              <div class="setting-item">
+                <div>
                   <span>{{ $t('otherEmail') }}</span>
                 </div>
                 <div class="forward">
@@ -493,6 +504,28 @@
           <el-table-column :width="tokenColumnWidth" property="value" label="Token" fixed="right" :show-overflow-tooltip="true" />
         </el-table>
       </el-dialog>
+      <el-dialog v-model="aliyunSmsShow" class="forward-dialog">
+        <template #header>
+          <div class="forward-head">
+            <span class="forward-set-title">阿里云短信服务</span>
+            <el-tooltip effect="dark" content="配置阿里云短信服务，用于邮件通知">
+              <Icon class="warning" icon="fe:warning" width="18" height="18" />
+            </el-tooltip>
+          </div>
+        </template>
+        <div class="forward-set-body">
+          <el-input :placeholder="'AccessKey ID'" v-model="aliyunAccessKeyId"></el-input>
+          <el-input :placeholder="'AccessKey Secret'" v-model="aliyunAccessKeySecret" type="password"></el-input>
+        </div>
+        <template #footer>
+          <div class="dialog-footer">
+            <el-switch v-model="aliyunSmsStatus" :active-value="0" :inactive-value="1" :active-text="$t('enable')" :inactive-text="$t('disable')" />
+            <el-button :loading="settingLoading" type="primary" @click="aliyunSmsSave">
+              {{ $t('save') }}
+            </el-button>
+          </div>
+        </template>
+      </el-dialog>
       <el-dialog v-model="regVerifyCountShow" :title="$t('rulesVerifyTitle', { count: regVerifyCount })" @closed="regVerifyCount = setting.regVerifyCount">
         <form>
           <el-input-number type="text" v-model="regVerifyCount" :min="1"> </el-input-number>
@@ -642,6 +675,7 @@ const resendTokenFormShow = ref(false)
 const r2DomainShow = ref(false)
 const turnstileShow = ref(false)
 const tgSettingShow = ref(false)
+const aliyunSmsShow = ref(false)
 const noticePopupShow = ref(false)
 const thirdEmailShow = ref(false)
 const forwardRulesShow = ref(false)
@@ -714,6 +748,9 @@ const tgChatId = ref([])
 const customDomain = ref('')
 const tgBotStatus = ref(0)
 const tgBotToken = ref('')
+const aliyunSmsStatus = ref(0)
+const aliyunAccessKeyId = ref('')
+const aliyunAccessKeySecret = ref('')
 const forwardEmail = ref([])
 const forwardStatus = ref(0)
 const emailColumnWidth = ref(0)
@@ -863,6 +900,13 @@ function openTgSetting() {
   tgSettingShow.value = true
 }
 
+function openAliyunSmsSetting() {
+  aliyunSmsStatus.value = setting.value.aliyunSmsStatus
+  aliyunAccessKeyId.value = setting.value.aliyunAccessKeyId
+  aliyunAccessKeySecret.value = setting.value.aliyunAccessKeySecret
+  aliyunSmsShow.value = true
+}
+
 function openNoticePopupSetting() {
   noticePopupShow.value = true
 }
@@ -1010,6 +1054,15 @@ function tgBotSave() {
     tgMsgFrom: tgMsgFrom.value,
     tgMsgText: tgMsgText.value,
     tgMsgTo: tgMsgTo.value
+  }
+  editSetting(form)
+}
+
+function aliyunSmsSave() {
+  const form = {
+    aliyunAccessKeyId: aliyunAccessKeyId.value,
+    aliyunAccessKeySecret: aliyunAccessKeySecret.value,
+    aliyunSmsStatus: aliyunSmsStatus.value
   }
   editSetting(form)
 }
