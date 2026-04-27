@@ -69,7 +69,12 @@ const smsService = {
 
   async sendSmsRequest(accessKeyId, secretAccessKey, phone, signName, templateCode, email) {
     const date = new Date();
-    const formatDate = date.toISOString().replace(/[:\-]|\.\d{3}/g, '');
+    const formatDate = date.getFullYear() + '-' +
+      String(date.getMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getDate()).padStart(2, '0') + ' ' +
+      String(date.getHours()).padStart(2, '0') + ':' +
+      String(date.getMinutes()).padStart(2, '0') + ':' +
+      String(date.getSeconds()).padStart(2, '0');
     const parameters = {
       AccessKeyId: accessKeyId,
       Action: 'SendSms',
@@ -78,7 +83,7 @@ const smsService = {
       SignatureNonce: Math.random().toString(36).substring(2) + Date.now().toString(36),
       SignatureVersion: '1.0',
       TemplateCode: templateCode,
-      Timestamp: formatDate + 'Z',
+      Timestamp: formatDate,
       Version: '2017-05-25',
       PhoneNumbers: phone,
       SignName: signName,
