@@ -1262,6 +1262,7 @@ function editSetting(settingForm, refreshStatus = true) {
       resendTokenFormShow.value = false
       turnstileShow.value = false
       tgSettingShow.value = false
+      aliyunSmsShow.value = false
       thirdEmailShow.value = false
       forwardRulesShow.value = false
       addVerifyCountShow.value = false
