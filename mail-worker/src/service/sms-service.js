@@ -2,12 +2,9 @@ import BizError from '../error/biz-error';
 import { t } from '../i18n/i18n';
 import settingService from './setting-service';
 
-const SMSClient = require('@alicloud/sms-sdk');
-
 const smsService = {
 
   async sendSms(c, phone, email, subject) {
-    // 从设置中获取阿里云短信服务配置
     console.log('开始发送短信服务...');
     const setting = await settingService.get(c, true);
     console.log('获取到的设置:', {
@@ -21,25 +18,17 @@ const smsService = {
     const templateCode = 'SMS_501190260';
     const signName = '雪萌熊';
 
-    // 验证配置是否存在
     if (!accessKeyId || !secretAccessKey) {
       console.error('阿里云短信服务配置缺失: accessKeyId=', !!accessKeyId, 'secretAccessKey=', !!secretAccessKey);
       throw new BizError('阿里云短信服务配置未设置', 500);
     }
 
-    // 验证短信服务是否启用
     if (smsStatus !== 0) {
       console.error('阿里云短信服务未启用: smsStatus=', smsStatus);
       throw new BizError('阿里云短信服务未启用', 500);
     }
 
     console.log('阿里云短信服务配置验证通过，准备发送短信');
-
-    // 创建短信客户端
-    const smsClient = new SMSClient({
-      accessKeyId,
-      secretAccessKey
-    });
 
     let retries = 3;
     let lastError;
@@ -48,17 +37,9 @@ const smsService = {
       try {
         console.log(`发送短信尝试 ${4 - retries}/3: 手机号 ${phone}, 邮箱 ${email}, 主题 ${subject}`);
 
-        // 发送短信
-        const result = await smsClient.sendSMS({
-          PhoneNumbers: phone,
-          SignName: signName,
-          TemplateCode: templateCode,
-          TemplateParam: JSON.stringify({
-            name: email
-          })
-        });
+        const result = await this.sendSmsRequest(accessKeyId, secretAccessKey, phone, signName, templateCode, email);
 
-        console.log('SMS send result:', result);
+        console.log('SMS send result:', JSON.stringify(result));
 
         if (result.Code === 'OK') {
           console.log(`短信发送成功: 手机号 ${phone}, 消息ID ${result.RequestId}`);
@@ -84,6 +65,81 @@ const smsService = {
     }
 
     throw lastError;
+  },
+
+  async sendSmsRequest(accessKeyId, secretAccessKey, phone, signName, templateCode, email) {
+    const date = new Date();
+    const formatDate = date.toISOString().replace(/[:\-]|\.\d{3}/g, '');
+    const parameters = {
+      AccessKeyId: accessKeyId,
+      Action: 'SendSms',
+      Format: 'JSON',
+      SignatureMethod: 'HMAC-SHA1',
+      SignatureNonce: Math.random().toString(36).substring(2) + Date.now().toString(36),
+      SignatureVersion: '1.0',
+      TemplateCode: templateCode,
+      Timestamp: formatDate + 'Z',
+      Version: '2017-05-25',
+      PhoneNumbers: phone,
+      SignName: signName,
+      TemplateParam: JSON.stringify({ name: email })
+    };
+
+    const sortedKeys = Object.keys(parameters).sort();
+    const queryString = sortedKeys.map(key => {
+      const value = encodeURIComponent(parameters[key]);
+      return `${encodeURIComponent(key)}=${value}`;
+    }).join('&');
+
+    const stringToSign = 'POST&%2F&' + encodeURIComponent(queryString);
+
+    const key = secretAccessKey + '&';
+    const signature = await this.hmacSha1(key, stringToSign);
+
+    const payload = {
+      AccessKeyId: accessKeyId,
+      Action: 'SendSms',
+      Format: 'JSON',
+      SignatureMethod: 'HMAC-SHA1',
+      SignatureNonce: parameters.SignatureNonce,
+      SignatureVersion: '1.0',
+      TemplateCode: templateCode,
+      Timestamp: formatDate + 'Z',
+      Version: '2017-05-25',
+      PhoneNumbers: phone,
+      SignName: signName,
+      TemplateParam: JSON.stringify({ name: email }),
+      Signature: signature
+    };
+
+    const response = await fetch('https://dysmsapi.aliyuncs.com/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: new URLSearchParams(payload).toString()
+    });
+
+    return await response.json();
+  },
+
+  async hmacSha1(key, message) {
+    const encoder = new TextEncoder();
+    const keyData = encoder.encode(key);
+    const messageData = encoder.encode(message);
+
+    const cryptoKey = await crypto.subtle.importKey(
+      'raw',
+      keyData,
+      { name: 'HMAC', hash: 'SHA-1' },
+      false,
+      ['sign']
+    );
+
+    const signature = await crypto.subtle.sign('HMAC', cryptoKey, messageData);
+    const bytes = new Uint8Array(signature);
+
+    return btoa(String.fromCharCode.apply(null, bytes));
   }
 };
 
