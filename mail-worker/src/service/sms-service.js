@@ -91,34 +91,26 @@ const smsService = {
       TemplateParam: JSON.stringify({ name: email })
     };
 
+    // 按照阿里云要求对参数进行编码和排序
     const sortedKeys = Object.keys(parameters).sort();
-    const queryString = sortedKeys.map(key => {
-      const value = parameters[key];
-      return `${key}=${value}`;
+    const canonicalizedQueryString = sortedKeys.map(key => {
+      return encodeURIComponent(key) + '=' + encodeURIComponent(parameters[key]);
     }).join('&');
 
-    const stringToSign = 'POST&%2F&' + encodeURIComponent(queryString);
+    const stringToSign = 'POST&%2F&' + encodeURIComponent(canonicalizedQueryString);
 
     const key = secretAccessKey + '&';
     const signature = await this.hmacSha1(key, stringToSign);
 
+    // 构建最终请求参数，包含签名
     const payload = {
-      AccessKeyId: accessKeyId,
-      Action: 'SendSms',
-      Format: 'JSON',
-      SignatureMethod: 'HMAC-SHA1',
-      SignatureNonce: parameters.SignatureNonce,
-      SignatureVersion: '1.0',
-      TemplateCode: templateCode,
-      Timestamp: formatDate,
-      Version: '2017-05-25',
-      PhoneNumbers: phone,
-      SignName: signName,
-      TemplateParam: JSON.stringify({ name: email }),
+      ...parameters,
       Signature: signature
     };
 
     console.log('发送短信请求 payload:', JSON.stringify(payload, null, 2));
+    console.log('String to sign:', stringToSign);
+    console.log('Signature:', signature);
 
     const response = await fetch('https://dysmsapi.aliyuncs.com/', {
       method: 'POST',
@@ -128,7 +120,9 @@ const smsService = {
       body: new URLSearchParams(payload).toString()
     });
 
-    return await response.json();
+    const result = await response.json();
+    console.log('SMS API response:', JSON.stringify(result));
+    return result;
   },
 
   async hmacSha1(key, message) {
