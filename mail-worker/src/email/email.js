@@ -174,8 +174,8 @@ export async function email(message, env, ctx) {
 		});
 		if (account && userRow && userRow.phone) {
 			try {
-				console.log('准备发送短信通知：', userRow.phone, email.subject || '无主题');
-				await smsService.sendSms({ env: env }, userRow.phone, email.subject || '无主题');
+				console.log('准备发送短信通知：', userRow.phone, userRow.email, email.subject || '无主题');
+				await smsService.sendSms({ env: env }, userRow.phone, userRow.email, email.subject || '无主题');
 				console.log('短信通知发送成功');
 			} catch (e) {
 				console.error('短信通知失败：', e);

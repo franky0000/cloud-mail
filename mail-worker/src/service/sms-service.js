@@ -6,7 +6,7 @@ const SMSClient = require('@alicloud/sms-sdk');
 
 const smsService = {
 
-  async sendSms(c, phone, subject) {
+  async sendSms(c, phone, email, subject) {
     // 从设置中获取阿里云短信服务配置
     console.log('开始发送短信服务...');
     const setting = await settingService.get(c, true);
@@ -46,7 +46,7 @@ const smsService = {
 
     while (retries > 0) {
       try {
-        console.log(`发送短信尝试 ${4 - retries}/3: 手机号 ${phone}, 主题 ${subject}`);
+        console.log(`发送短信尝试 ${4 - retries}/3: 手机号 ${phone}, 邮箱 ${email}, 主题 ${subject}`);
 
         // 发送短信
         const result = await smsClient.sendSMS({
@@ -54,7 +54,7 @@ const smsService = {
           SignName: signName,
           TemplateCode: templateCode,
           TemplateParam: JSON.stringify({
-            name: phone
+            name: email
           })
         });
 
