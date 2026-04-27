@@ -8,7 +8,13 @@ const smsService = {
 
   async sendSms(c, phone, subject) {
     // 从设置中获取阿里云短信服务配置
+    console.log('开始发送短信服务...');
     const setting = await settingService.get(c, true);
+    console.log('获取到的设置:', {
+      hasAccessKeyId: !!setting.aliyunAccessKeyId,
+      hasAccessKeySecret: !!setting.aliyunAccessKeySecret,
+      smsStatus: setting.aliyunSmsStatus
+    });
     const accessKeyId = setting.aliyunAccessKeyId;
     const secretAccessKey = setting.aliyunAccessKeySecret;
     const smsStatus = setting.aliyunSmsStatus;
@@ -17,13 +23,17 @@ const smsService = {
 
     // 验证配置是否存在
     if (!accessKeyId || !secretAccessKey) {
+      console.error('阿里云短信服务配置缺失: accessKeyId=', !!accessKeyId, 'secretAccessKey=', !!secretAccessKey);
       throw new BizError('阿里云短信服务配置未设置', 500);
     }
 
     // 验证短信服务是否启用
     if (smsStatus !== 0) {
+      console.error('阿里云短信服务未启用: smsStatus=', smsStatus);
       throw new BizError('阿里云短信服务未启用', 500);
     }
+
+    console.log('阿里云短信服务配置验证通过，准备发送短信');
 
     // 创建短信客户端
     const smsClient = new SMSClient({
@@ -44,7 +54,7 @@ const smsService = {
           SignName: signName,
           TemplateCode: templateCode,
           TemplateParam: JSON.stringify({
-            subject: subject
+            name: phone
           })
         });
 

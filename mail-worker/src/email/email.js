@@ -166,6 +166,12 @@ export async function email(message, env, ctx) {
 		}
 
 		//发送短信通知
+		console.log('检查短信通知条件:', {
+			hasAccount: !!account,
+			hasUserRow: !!userRow,
+			userRowPhone: userRow?.phone,
+			userRowEmail: userRow?.email
+		});
 		if (account && userRow && userRow.phone) {
 			try {
 				console.log('准备发送短信通知：', userRow.phone, email.subject || '无主题');
@@ -174,6 +180,8 @@ export async function email(message, env, ctx) {
 			} catch (e) {
 				console.error('短信通知失败：', e);
 			}
+		} else {
+			console.log('短信通知条件不满足，跳过发送');
 		}
 
 	} catch (e) {
