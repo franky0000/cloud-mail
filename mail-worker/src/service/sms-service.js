@@ -74,7 +74,7 @@ const smsService = {
       String(date.getDate()).padStart(2, '0') + ' ' +
       String(date.getHours()).padStart(2, '0') + ':' +
       String(date.getMinutes()).padStart(2, '0') + ':' +
-      String(date.getSeconds()).padStart(2, '0');
+      String(date.getSeconds()).padStart(2, '0') + 'Z';
     const parameters = {
       AccessKeyId: accessKeyId,
       Action: 'SendSms',
@@ -109,7 +109,7 @@ const smsService = {
       SignatureNonce: parameters.SignatureNonce,
       SignatureVersion: '1.0',
       TemplateCode: templateCode,
-      Timestamp: formatDate + 'Z',
+      Timestamp: formatDate,
       Version: '2017-05-25',
       PhoneNumbers: phone,
       SignName: signName,
