@@ -16,3 +16,7 @@ export function updatePhone(phone) {
     return http.put('/my/updatePhone', {phone})
 }
 
+export function sendSms(phone, subject) {
+    return http.post('/sms/send', {phone, subject})
+}
+
