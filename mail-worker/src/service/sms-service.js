@@ -69,12 +69,13 @@ const smsService = {
 
   async sendSmsRequest(accessKeyId, secretAccessKey, phone, signName, templateCode, email) {
     const date = new Date();
-    const formatDate = date.getFullYear() + '-' +
-      String(date.getMonth() + 1).padStart(2, '0') + '-' +
-      String(date.getDate()).padStart(2, '0') + ' ' +
-      String(date.getHours()).padStart(2, '0') + ':' +
-      String(date.getMinutes()).padStart(2, '0') + ':' +
-      String(date.getSeconds()).padStart(2, '0') + 'Z';
+    const formatDate = date.getUTCFullYear() + '-' +
+      String(date.getUTCMonth() + 1).padStart(2, '0') + '-' +
+      String(date.getUTCDate()).padStart(2, '0') + 'T' +
+      String(date.getUTCHours()).padStart(2, '0') + ':' +
+      String(date.getUTCMinutes()).padStart(2, '0') + ':' +
+      String(date.getUTCSeconds()).padStart(2, '0') + 'Z';
+
     const parameters = {
       AccessKeyId: accessKeyId,
       Action: 'SendSms',
@@ -92,8 +93,8 @@ const smsService = {
 
     const sortedKeys = Object.keys(parameters).sort();
     const queryString = sortedKeys.map(key => {
-      const value = encodeURIComponent(parameters[key]);
-      return `${encodeURIComponent(key)}=${value}`;
+      const value = parameters[key];
+      return `${key}=${value}`;
     }).join('&');
 
     const stringToSign = 'POST&%2F&' + encodeURIComponent(queryString);
@@ -116,6 +117,8 @@ const smsService = {
       TemplateParam: JSON.stringify({ name: email }),
       Signature: signature
     };
+
+    console.log('发送短信请求 payload:', JSON.stringify(payload, null, 2));
 
     const response = await fetch('https://dysmsapi.aliyuncs.com/', {
       method: 'POST',
