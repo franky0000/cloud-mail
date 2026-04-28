@@ -88,7 +88,7 @@ const smsService = {
       Version: '2017-05-25',
       PhoneNumbers: phone,
       SignName: signName,
-      TemplateParam: JSON.stringify({ name: email })
+      TemplateParam: JSON.stringify({ name: email.split('@')[0] })
     };
 
     // 按照阿里云要求对参数进行编码和排序
