@@ -31,9 +31,9 @@
             <span class="edit-name" @click="setPhone">
               {{ $t('save') }}
             </span>
-            <el-button class="edit-name" :loading="smsLoading" @click="sendTestSms">
+            <!-- <el-button class="edit-name" :loading="smsLoading" @click="sendTestSms">
               {{ '发送测试短信' }}
-            </el-button>
+            </el-button> -->
           </span>
           <span v-else class="user-name">
             <span>{{ userStore.user.phone || $t('notSet') }}</span>
