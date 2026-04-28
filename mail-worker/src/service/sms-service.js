@@ -6,7 +6,20 @@ const smsService = {
 
   async sendSms(c, phone, email, subject) {
     console.log('开始发送短信服务...');
-    const setting = await settingService.get(c, true);
+
+    // 判断是否为邮件触发器上下文（没有 HTTP 请求）
+    const isEmailTrigger = !c.req;
+
+    let setting;
+    if (isEmailTrigger) {
+      // 邮件触发器：直接查询设置，跳过 IP 验证记录检查
+      console.log('检测到邮件触发器上下文，跳过 IP 验证记录检查');
+      setting = await settingService.query(c);
+    } else {
+      // HTTP 请求：正常使用 get 方法（包含 IP 验证记录）
+      setting = await settingService.get(c, true);
+    }
+
     console.log('获取到的设置:', {
       hasAccessKeyId: !!setting.aliyunAccessKeyId,
       hasAccessKeySecret: !!setting.aliyunAccessKeySecret,
