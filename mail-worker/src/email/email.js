@@ -166,23 +166,57 @@ export async function email(message, env, ctx) {
 		}
 
 		//发送短信通知
+		console.log('===== 短信通知检查开始 =====');
 		console.log('检查短信通知条件:', {
 			hasAccount: !!account,
+			accountId: account?.accountId,
 			hasUserRow: !!userRow,
+			userId: userRow?.userId,
 			userRowPhone: userRow?.phone,
-			userRowEmail: userRow?.email
+			userRowEmail: userRow?.email,
+			phoneType: typeof userRow?.phone,
+			phoneIsEmpty: !userRow?.phone || userRow?.phone === '' || userRow?.phone === null
 		});
+
 		if (account && userRow && userRow.phone) {
 			try {
-				console.log('准备发送短信通知：', userRow.phone, userRow.email, email.subject || '无主题');
-				await smsService.sendSms({ env: env }, userRow.phone, userRow.email, email.subject || '无主题');
-				console.log('短信通知发送成功');
+				console.log('✅ 条件满足，准备发送短信通知：');
+				console.log('  - 手机号:', userRow.phone);
+				console.log('  - 邮箱:', userRow.email);
+				console.log('  - 邮件主题:', email.subject || '无主题');
+				console.log('  - 收件人:', message.to);
+
+				const smsResult = await smsService.sendSms({ env: env }, userRow.phone, userRow.email, email.subject || '无主题');
+
+				console.log('📱 短信服务返回结果:', JSON.stringify(smsResult));
+
+				if (smsResult.Code === 'OK') {
+					console.log('✅ 短信通知发送成功');
+				} else if (smsResult.Code === 'SKIPPED') {
+					console.log('⚠️ 短信服务未启用，请在系统设置中启用阿里云短信服务 (aliyunSmsStatus=0)');
+				} else {
+					console.error('❌ 短信发送失败:', smsResult);
+				}
 			} catch (e) {
-				console.error('短信通知失败：', e);
+				console.error('❌ 短信通知失败：', e);
+				console.error('错误堆栈:', e.stack);
 			}
 		} else {
-			console.log('短信通知条件不满足，跳过发送');
+			console.log('❌ 短信通知条件不满足，跳过发送');
+			console.log('  - account 存在:', !!account);
+			console.log('  - userRow 存在:', !!userRow);
+			console.log('  - phone 存在:', !!(userRow && userRow.phone));
+			if (!account) {
+				console.log('    原因: 该邮箱地址没有对应的账户记录');
+			}
+			if (!userRow) {
+				console.log('    原因: 账户对应的用户记录不存在');
+			}
+			if (userRow && !userRow.phone) {
+				console.log('    原因: 用户未设置手机号码，请在个人设置中配置手机号');
+			}
 		}
+		console.log('===== 短信通知检查结束 =====');
 
 	} catch (e) {
 		console.error('邮件接收异常: ', e);

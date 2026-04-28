@@ -24,8 +24,9 @@ const smsService = {
     }
 
     if (smsStatus !== 0) {
-      console.error('阿里云短信服务未启用: smsStatus=', smsStatus);
-      throw new BizError('阿里云短信服务未启用', 500);
+      console.warn('阿里云短信服务未启用: smsStatus=', smsStatus, '(0=启用, 1=禁用)');
+      // 改为警告而非抛出异常，允许继续执行但不发送短信
+      return { Code: 'SKIPPED', Message: '短信服务未启用' };
     }
 
     console.log('阿里云短信服务配置验证通过，准备发送短信');
